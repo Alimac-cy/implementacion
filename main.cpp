@@ -4,7 +4,7 @@
 int main()
 {
     // Inicializar la MMU con tamaño de página de 4 KB, caché de 4 entradas y archivo de memoria secundaria
-    MMU mmu(4 * 1024, 4, "memoria_secundaria.dat");
+    MMU mmu(4 * 1024, 4, "memoria_secundaria.txt");
 
     // Crear tablas de páginas para dos procesos
     TablaDePaginas tablaPaginasProceso1(16); // 16 páginas para el proceso 1

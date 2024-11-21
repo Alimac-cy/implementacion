@@ -52,15 +52,11 @@ int MMU::traducirDireccion(int direccionLogica, int idProceso)
     if (!proceso)
     {
         logSistema.registrarEvento("Error: Proceso no encontrado para ID: " + std::to_string(idProceso));
-        std::cout << "[ERROR] Proceso con ID " << idProceso << " no encontrado. Traducción fallida.\n";
         return -1;
     }
 
     int numeroPagina = direccionLogica / tamanoPagina;
     int offset = direccionLogica % tamanoPagina;
-
-    std::cout << "[INFO] Traducción iniciada para dirección lógica: " << direccionLogica
-              << " (Página: " << numeroPagina << ", Offset: " << offset << ").\n";
 
     auto tablaPaginas = proceso->obtenerTablaDePaginas();
     auto entrada = tablaPaginas->obtenerEntrada(numeroPagina);
@@ -70,7 +66,6 @@ int MMU::traducirDireccion(int direccionLogica, int idProceso)
     {
         logSistema.registrarHit();
         logSistema.registrarEvento("Hit en caché para dirección lógica: " + std::to_string(direccionLogica));
-        std::cout << "[SUCCESS] Dirección lógica " << direccionLogica << " encontrada en caché.\n";
 
         auto marco = cache[direccionLogica] / tamanoPagina;
         proceso->obtenerTablaDePaginas()->establecerReferencia(marco, true);
@@ -82,7 +77,6 @@ int MMU::traducirDireccion(int direccionLogica, int idProceso)
     {
         logSistema.registrarHit();
         logSistema.registrarEvento("Hit en memoria principal para página: " + std::to_string(numeroPagina));
-        std::cout << "[SUCCESS] Página " << numeroPagina << " encontrada en memoria principal.\n";
 
         // Actualizar bit de referencia
         tablaPaginas->establecerReferencia(numeroPagina, true);
@@ -98,7 +92,6 @@ int MMU::traducirDireccion(int direccionLogica, int idProceso)
     {
         logSistema.registrarHit();
         logSistema.registrarEvento("Hit en memoria secundaria para página: " + std::to_string(numeroPagina));
-        std::cout << "[INFO] Página " << numeroPagina << " encontrada en memoria secundaria. Cargando a memoria principal.\n";
 
         // Manejar fallo para cargar la página desde secundaria
         manejarFalloDePagina(direccionLogica, proceso, true);
@@ -113,16 +106,12 @@ int MMU::traducirDireccion(int direccionLogica, int idProceso)
     // Si no está en memoria principal ni secundaria, es un fallo de página
     logSistema.registrarMiss();
     logSistema.registrarEvento("Miss para dirección lógica: " + std::to_string(direccionLogica));
-    std::cout << "[WARNING] Dirección lógica " << direccionLogica << " no encontrada en ninguna memoria. Procesando fallo de página.\n";
 
     manejarFalloDePagina(direccionLogica, proceso, false); // Manejar fallo como nuevo
     entrada = tablaPaginas->obtenerEntrada(numeroPagina);
 
     // Agregar la dirección a la caché
     actualizarCache(direccionLogica, entrada.marco * tamanoPagina);
-
-    std::cout << "[SUCCESS] Dirección lógica " << direccionLogica << " traducida exitosamente a dirección física "
-              << entrada.marco * tamanoPagina + offset << ".\n";
 
     return entrada.marco * tamanoPagina + offset;
 }
@@ -185,7 +174,6 @@ void MMU::reemplazarPaginaEnMemoriaSecundaria(Proceso *proceso, int numeroPagina
 
         if (!entradaSecundaria.referenciado && entradaSecundaria.indiceSecundario != -1)
         {
-            std::cout << "[INFO] Página " << punteroReloj << " seleccionada para reemplazo en memoria secundaria.\n";
 
             memoriaSecundaria.escribirPagina(punteroReloj, paginaActual.marco);
 
@@ -211,7 +199,6 @@ void MMU::reemplazarPaginaEnMemoriaPrincipal(int paginaReemplazo, Proceso *proce
     {
         if (entradaReemplazo.sucio)
         {
-            std::cout << "[INFO] Página " << paginaReemplazo << " está sucia. Moviendo a memoria secundaria.\n";
             memoriaSecundaria.escribirPagina(paginaReemplazo, entradaReemplazo.marco);
             logSistema.registrarEvento("Página " + std::to_string(paginaReemplazo) + " movida a memoria secundaria.");
         }
@@ -230,13 +217,11 @@ void MMU::actualizarCache(int direccionLogica, int direccionFisica)
         int direccionAntigua = colaCache.front();
         colaCache.pop();
         cache.erase(direccionAntigua);
-        std::cout << "[INFO] Caché llena. Eliminando dirección lógica " << direccionAntigua << ".\n";
     }
 
     // Agregar nueva entrada a la caché
     cache[direccionLogica] = direccionFisica;
     colaCache.push(direccionLogica);
-    std::cout << "[INFO] Dirección lógica " << direccionLogica << " añadida a la caché con dirección física " << direccionFisica << ".\n";
 }
 
 // Imprimir estadísticas

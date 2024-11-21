@@ -21,7 +21,6 @@ int MemoriaPrincipal::asignarMarco(int numeroPagina)
             return i;
         }
     }
-    std::cout << "[WARNING] No hay marcos libres en memoria principal.\n";
     return -1; // No hay marcos disponibles.
 }
 
