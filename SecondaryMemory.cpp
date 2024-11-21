@@ -4,179 +4,124 @@
 MemoriaSecundaria::MemoriaSecundaria(const std::string &archivo, int tamanoPagina, int tamanoTotal)
     : archivo(archivo), tamanoPagina(tamanoPagina), tamanoTotal(tamanoTotal)
 {
-    int numPaginas = tamanoTotal / tamanoPagina;
-    paginas.resize(numPaginas, -1); // Inicializa las páginas como vacías (-1 significa vacío).
-    inicializarArchivo();           // Prepara el archivo para almacenamiento.
+    inicializarArchivo();
 }
 
-// Método para inicializar el archivo de almacenamiento
+// Inicializa el archivo con datos vacíos si no existe
 void MemoriaSecundaria::inicializarArchivo()
 {
-    std::ofstream outFile(archivo, std::ios::trunc);
-    for (int i = 0; i < paginas.size(); ++i)
+    std::fstream stream(archivo, std::ios::in | std::ios::out);
+    if (!stream)
     {
-        outFile << "Página " << i << ": [VACÍA]\n";
+        std::cout << "[INFO] Archivo no encontrado. Creando archivo nuevo.\n";
+        std::ofstream nuevoArchivo(archivo);
+        nuevoArchivo.close();
+        stream.open(archivo, std::ios::in | std::ios::out);
     }
-    outFile.close();
-    std::cout << "[INFO] Archivo de almacenamiento secundario inicializado.\n";
-}
 
-// Método para escribir una página en el almacenamiento secundario
-void MemoriaSecundaria::escribirPagina(int numeroPagina, int datos)
-{
-    if (numeroPagina >= 0 && numeroPagina < paginas.size())
+    // Verifica si el archivo necesita ser llenado con páginas vacías
+    int paginasExistentes = totalPaginas();
+    int paginasTotales = tamanoTotal / tamanoPagina;
+    if (paginasExistentes < paginasTotales)
     {
-        paginas[numeroPagina] = datos;
-        actualizarArchivo(numeroPagina, datos);
-        std::cout << "[SUCCESS] Página " << numeroPagina << " escrita en almacenamiento secundario.\n";
-    }
-    else
-    {
-        std::cout << "[ERROR] Número de página inválido: " << numeroPagina << ".\n";
-    }
-}
-
-// Método para leer una página del almacenamiento secundario
-int MemoriaSecundaria::leerPagina(int numeroPagina)
-{
-    if (numeroPagina >= 0 && numeroPagina < paginas.size())
-    {
-        if (paginas[numeroPagina] != -1)
+        stream.seekp(0, std::ios::end);
+        for (int i = paginasExistentes; i < paginasTotales; ++i)
         {
-            std::cout << "[SUCCESS] Página " << numeroPagina << " leída desde almacenamiento secundario.\n";
-            return paginas[numeroPagina];
-        }
-        else
-        {
-            std::cout << "[WARNING] Página " << numeroPagina << " está vacía.\n";
-            return -1;
+            stream << "\n"; // Línea vacía para representar una página vacía
         }
     }
-    else
-    {
-        std::cout << "[ERROR] Número de página inválido: " << numeroPagina << ".\n";
-        return -1;
-    }
+
+    stream.close();
 }
 
-void MemoriaSecundaria::leerPagina(int numeroPagina, int &marco)
+// Escribe datos en una página específica
+void MemoriaSecundaria::escribirPagina(int numeroPagina, const std::string &instruccion)
 {
-    if (numeroPagina >= 0 && numeroPagina < paginas.size())
-    {
-        if (paginas[numeroPagina] != -1)
-        {
-            marco = paginas[numeroPagina]; // Carga el contenido de la página al marco
-            std::cout << "[SUCCESS] Página " << numeroPagina << " leída desde almacenamiento secundario.\n";
-        }
-        else
-        {
-            std::cout << "[WARNING] Página " << numeroPagina << " está vacía.\n";
-            marco = -1;
-        }
-    }
-    else
-    {
-        std::cout << "[ERROR] Número de página inválido: " << numeroPagina << ".\n";
-        marco = -1;
-    }
-}
-
-// Método para eliminar una página del almacenamiento secundario
-void MemoriaSecundaria::eliminarPagina(int numeroPagina)
-{
-    if (numeroPagina >= 0 && numeroPagina < paginas.size())
-    {
-        paginas[numeroPagina] = -1;
-        actualizarArchivo(numeroPagina, -1);
-        std::cout << "[SUCCESS] Página " << numeroPagina << " eliminada del almacenamiento secundario.\n";
-    }
-    else
-    {
-        std::cout << "[ERROR] Número de página inválido: " << numeroPagina << ".\n";
-    }
-}
-
-// Método para imprimir el estado del almacenamiento secundario
-void MemoriaSecundaria::imprimirEstado() const
-{
-    std::cout << "[INFO] Estado del Almacenamiento Secundario:\n";
-    for (int i = 0; i < paginas.size(); ++i)
-    {
-        if (paginas[i] == -1)
-        {
-            std::cout << "Página " << i << ": [VACÍA]\n";
-        }
-        else
-        {
-            std::cout << "Página " << i << ": " << paginas[i] << "\n";
-        }
-    }
-}
-
-// Método para actualizar el archivo cuando se escriben o eliminan páginas
-void MemoriaSecundaria::actualizarArchivo(int numeroPagina, int datos)
-{
-    std::ifstream inFile(archivo);
-    std::vector<std::string> contenido;
+    std::ifstream archivoLectura(this->archivo);
+    std::vector<std::string> lineas;
     std::string linea;
 
-    // Leer el archivo actual
-    while (std::getline(inFile, linea))
+    if (!archivoLectura)
     {
-        contenido.push_back(linea);
-    }
-    inFile.close();
-
-    // Actualizar la línea correspondiente
-    if (numeroPagina >= 0 && numeroPagina < contenido.size())
-    {
-        contenido[numeroPagina] = "Página " + std::to_string(numeroPagina) + ": " +
-                                  (datos == -1 ? "[VACÍA]" : std::to_string(datos));
+        throw std::runtime_error("[ERROR] Archivo no encontrado");
     }
 
-    // Escribir el archivo actualizado
-    std::ofstream outFile(archivo, std::ios::trunc);
-    for (const auto &linea : contenido)
+    // Leer todas las líneas
+    while (std::getline(archivoLectura, linea))
     {
-        outFile << linea << "\n";
+        lineas.push_back(linea);
     }
-    outFile.close();
+    archivoLectura.close();
+
+    // Ajustar el tamaño del vector para incluir todas las páginas necesarias
+    if (numeroPagina >= lineas.size())
+    {
+        lineas.resize(numeroPagina + 1, ""); // Rellenar con líneas vacías
+    }
+
+    // Actualizar la línea correspondiente al número de página
+    lineas[numeroPagina] = instruccion;
+
+    // Escribir de vuelta al archivo
+    std::ofstream archivoEscritura(this->archivo);
+    for (const auto &l : lineas)
+    {
+        archivoEscritura << l << "\n";
+    }
+
+    archivoEscritura.close();
+    std::cout << "[INFO] Página " << numeroPagina << " escrita con instrucción: " << instruccion << "\n";
 }
 
-int MemoriaSecundaria::asignarEspacio(int numeroPagina)
+// Lee los datos de una página específica
+std::string MemoriaSecundaria::leerPagina(int numeroPagina)
 {
-    for (int i = 0; i < paginas.size(); ++i)
+    std::ifstream archivo(this->archivo);
+    if (!archivo)
     {
-        if (paginas[i] == -1)
+        throw std::runtime_error("[ERROR] Archivo no encontrado");
+    }
+
+    std::string linea;
+    int contador = 0;
+
+    // Buscar la línea correspondiente a la página
+    while (std::getline(archivo, linea))
+    {
+        if (contador == numeroPagina)
         {
-            paginas[i] = numeroPagina;
-            return i;
+            archivo.close();
+            std::cout << "[INFO] Página " << numeroPagina << " leída: " << linea << "\n";
+            return linea; // Devuelve el contenido de la página directamente
         }
+        contador++;
     }
-    std::cerr << "[ERROR] Memoria secundaria llena. No se pudo asignar espacio.\n";
-    return -1;
+
+    archivo.close();
+    throw std::out_of_range("[ERROR] Página fuera de rango");
 }
 
-void MemoriaSecundaria::liberarEspacio(int indiceSecundario)
+// Elimina una página del archivo
+void MemoriaSecundaria::eliminarPagina(int numeroPagina)
 {
-    if (indiceSecundario >= 0 && indiceSecundario < paginas.size())
-    {
-        paginas[indiceSecundario] = -1;
-    }
-    else
-    {
-        std::cerr << "[ERROR] Índice inválido en memoria secundaria: " << indiceSecundario << ".\n";
-    }
+    escribirPagina(numeroPagina, ""); // Reemplaza la línea con una instrucción vacía.
+    std::cout << "[INFO] Página " << numeroPagina << " eliminada.\n";
 }
 
-int MemoriaSecundaria::totalPaginas() const {
-    return paginas.size();
-}
-
-int& MemoriaSecundaria::obtenerEntrada(int indice) {
-    if (indice >= 0 && indice < paginas.size()) {
-        return paginas[indice];
-    } else {
-        throw std::out_of_range("[ERROR] Índice fuera de rango en obtenerEntrada de MemoriaSecundaria.");
+// Devuelve el número total de páginas disponibles
+int MemoriaSecundaria::totalPaginas() const
+{
+    std::ifstream archivo(this->archivo);
+    if (!archivo)
+    {
+        return 0;
     }
+
+    int contador = 0;
+    std::string linea;
+    while (std::getline(archivo, linea))
+    {
+        contador++;
+    }
+    return contador;
 }

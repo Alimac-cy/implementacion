@@ -66,10 +66,7 @@ int MMU::traducirDireccion(int direccionLogica, int idProceso)
     {
         logSistema.registrarHit();
         logSistema.registrarEvento("Hit en caché para dirección lógica: " + std::to_string(direccionLogica));
-
-        auto marco = cache[direccionLogica] / tamanoPagina;
-        proceso->obtenerTablaDePaginas()->establecerReferencia(marco, true);
-        return cache[direccionLogica];
+        return cache[direccionLogica] + offset;
     }
 
     // Revisar si está en la memoria principal
@@ -80,115 +77,50 @@ int MMU::traducirDireccion(int direccionLogica, int idProceso)
 
         // Actualizar bit de referencia
         tablaPaginas->establecerReferencia(numeroPagina, true);
-
-        // Agregar la dirección a la caché
         actualizarCache(direccionLogica, entrada.marco * tamanoPagina);
 
         return entrada.marco * tamanoPagina + offset;
     }
 
-    // Revisar si está en la memoria secundaria
-    if (entrada.indiceSecundario != -1)
-    {
-        logSistema.registrarHit();
-        logSistema.registrarEvento("Hit en memoria secundaria para página: " + std::to_string(numeroPagina));
-
-        // Manejar fallo para cargar la página desde secundaria
-        manejarFalloDePagina(direccionLogica, proceso, true);
-        entrada = tablaPaginas->obtenerEntrada(numeroPagina);
-
-        // Agregar la dirección a la caché
-        actualizarCache(direccionLogica, entrada.marco * tamanoPagina);
-
-        return entrada.marco * tamanoPagina + offset;
-    }
-
-    // Si no está en memoria principal ni secundaria, es un fallo de página
+    // Manejo de fallo de página
     logSistema.registrarMiss();
     logSistema.registrarEvento("Miss para dirección lógica: " + std::to_string(direccionLogica));
+    manejarFalloDePagina(direccionLogica, proceso);
 
-    manejarFalloDePagina(direccionLogica, proceso, false); // Manejar fallo como nuevo
+    // Actualizar entrada después de manejar el fallo
     entrada = tablaPaginas->obtenerEntrada(numeroPagina);
-
-    // Agregar la dirección a la caché
     actualizarCache(direccionLogica, entrada.marco * tamanoPagina);
 
     return entrada.marco * tamanoPagina + offset;
 }
 
 // Manejo de fallo de página
-void MMU::manejarFalloDePagina(int direccionLogica, Proceso *proceso, bool cargarDesdeSecundaria)
+void MMU::manejarFalloDePagina(int direccionLogica, Proceso *proceso)
 {
     int numeroPagina = direccionLogica / tamanoPagina;
 
-    if (cargarDesdeSecundaria)
+    // Leer la instrucción desde la memoria secundaria
+    std::string instruccion = memoriaSecundaria.leerPagina(numeroPagina);
+
+    // Asignar un marco libre en la memoria principal
+    int marcoLibre = memoriaPrincipal.asignarMarco(numeroPagina);
+    if (marcoLibre == -1)
     {
-        // Cargar desde memoria secundaria
-        std::cout << "[INFO] Cargando página " << numeroPagina << " desde memoria secundaria.\n";
-
-        int marcoLibre = memoriaPrincipal.asignarMarco(numeroPagina);
-        if (marcoLibre == -1)
-        {
-            std::cout << "[WARNING] No hay marcos libres en memoria principal. Aplicando reemplazo.\n";
-            int paginaReemplazo = proceso->obtenerTablaDePaginas()->buscarReemplazoNRU();
-            reemplazarPaginaEnMemoriaPrincipal(paginaReemplazo, proceso);
-            marcoLibre = memoriaPrincipal.asignarMarco(numeroPagina);
-        }
-
-        if (marcoLibre != -1)
-        {
-            // Leer de memoria secundaria a memoria principal
-            memoriaSecundaria.leerPagina(numeroPagina, marcoLibre);
-
-            // Actualizar tabla de páginas
-            proceso->obtenerTablaDePaginas()->actualizarEntrada(numeroPagina, marcoLibre, true, false, true, -1);
-            logSistema.registrarEvento("Página " + std::to_string(numeroPagina) + " cargada desde memoria secundaria.");
-        }
+        // Aplicar algoritmo de reemplazo si no hay marcos disponibles
+        int paginaReemplazo = proceso->obtenerTablaDePaginas()->buscarReemplazoNRU();
+        reemplazarPaginaEnMemoriaPrincipal(paginaReemplazo, proceso);
+        marcoLibre = memoriaPrincipal.asignarMarco(numeroPagina);
     }
-    else
-    {
-        // Manejo de fallo normal
-        int marcoLibre = memoriaPrincipal.asignarMarco(numeroPagina);
-        if (marcoLibre == -1)
-        {
-            int paginaReemplazo = proceso->obtenerTablaDePaginas()->buscarReemplazoNRU();
-            reemplazarPaginaEnMemoriaPrincipal(paginaReemplazo, proceso);
-            marcoLibre = memoriaPrincipal.asignarMarco(numeroPagina);
-        }
 
-        if (marcoLibre != -1)
-        {
-            proceso->obtenerTablaDePaginas()->actualizarEntrada(numeroPagina, marcoLibre, true, false, true, -1);
-            logSistema.registrarEvento("Página " + std::to_string(numeroPagina) + " cargada en memoria principal.");
-        }
-    }
-}
+    // Escribir la instrucción en el marco asignado
+    memoriaPrincipal.escribirMarco(marcoLibre, instruccion);
 
-void MMU::reemplazarPaginaEnMemoriaSecundaria(Proceso *proceso, int numeroPagina, EntradaPagina paginaActual)
-{
-    std::cout << "[INFO] Memoria secundaria llena. Aplicando algoritmo de Reloj para reemplazo.\n";
+    // Actualizar la tabla de páginas del proceso
+    proceso->obtenerTablaDePaginas()->actualizarEntrada(numeroPagina, marcoLibre, true, false, true);
 
-    while (true)
-    {
-        auto entradaSecundaria = proceso->obtenerTablaDePaginas()->obtenerEntrada(punteroReloj);
-
-        if (!entradaSecundaria.referenciado && entradaSecundaria.indiceSecundario != -1)
-        {
-
-            memoriaSecundaria.escribirPagina(punteroReloj, paginaActual.marco);
-
-            // Actualizar tabla de páginas con nueva entrada
-            proceso->obtenerTablaDePaginas()->actualizarEntrada(
-                punteroReloj, -1, false, false, false, punteroReloj);
-
-            punteroReloj = (punteroReloj + 1) % proceso->obtenerTablaDePaginas()->numPaginas();
-            return;
-        }
-
-        // Resetear el bit de referencia y avanzar el puntero
-        proceso->obtenerTablaDePaginas()->establecerReferencia(punteroReloj, false);
-        punteroReloj = (punteroReloj + 1) % proceso->obtenerTablaDePaginas()->numPaginas();
-    }
+    logSistema.registrarEvento("Página " + std::to_string(numeroPagina) +
+                               " cargada desde Memoria Secundaria al marco " +
+                               std::to_string(marcoLibre) + ".");
 }
 
 void MMU::reemplazarPaginaEnMemoriaPrincipal(int paginaReemplazo, Proceso *proceso)
@@ -197,12 +129,15 @@ void MMU::reemplazarPaginaEnMemoriaPrincipal(int paginaReemplazo, Proceso *proce
 
     if (entradaReemplazo.valido)
     {
+        // Si la página está sucia, escribirla de vuelta en la Memoria Secundaria
         if (entradaReemplazo.sucio)
         {
-            memoriaSecundaria.escribirPagina(paginaReemplazo, entradaReemplazo.marco);
-            logSistema.registrarEvento("Página " + std::to_string(paginaReemplazo) + " movida a memoria secundaria.");
+            std::string datos = memoriaPrincipal.leerMarco(entradaReemplazo.marco);
+            memoriaSecundaria.escribirPagina(paginaReemplazo, datos);
+            logSistema.registrarEvento("Página " + std::to_string(paginaReemplazo) + " escrita de vuelta a Memoria Secundaria.");
         }
 
+        // Liberar el marco de la memoria principal
         memoriaPrincipal.liberarMarco(entradaReemplazo.marco);
         proceso->obtenerTablaDePaginas()->actualizarEntrada(paginaReemplazo, -1, false, false, false);
         logSistema.registrarEvento("Página " + std::to_string(paginaReemplazo) + " reemplazada.");
@@ -235,7 +170,9 @@ void MMU::imprimirEstadoMemorias() const
 {
     std::cout << "\nEstado de la Memoria Principal:\n";
     memoriaPrincipal.imprimirEstado();
+}
 
-    std::cout << "\nEstado de la Memoria Secundaria:\n";
-    memoriaSecundaria.imprimirEstado();
+const MemoriaPrincipal &MMU::getMemoriaPrincipal() const
+{
+    return memoriaPrincipal;
 }

@@ -39,12 +39,14 @@ public:
     Proceso *obtenerProceso(int idProceso);
 
     int traducirDireccion(int direccionLogica, int idProceso);
-    void manejarFalloDePagina(int direccionLogica, Proceso *proceso, bool desdeSecundaria);
-    void reemplazarPaginaEnMemoriaSecundaria(Proceso *proceso, int numeroPagina, EntradaPagina paginaActual);
+    void manejarFalloDePagina(int direccionLogica, Proceso *proceso);
     void reemplazarPaginaEnMemoriaPrincipal(int paginaReemplazo, Proceso *proceso);
 
     // Métodos para imprimir estados
     void imprimirEstadisticas() const;
     void imprimirEstadoMemorias() const;
+
+    // Nuevo método para obtener acceso a la memoria principal
+    const MemoriaPrincipal &getMemoriaPrincipal() const;
 };
 #endif // MMU_H

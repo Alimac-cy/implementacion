@@ -46,6 +46,8 @@
         "map": "cpp",
         "fstream": "cpp",
         "iostream": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "cstring": "cpp",
+        "sstream": "cpp"
     }
 }

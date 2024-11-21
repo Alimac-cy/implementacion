@@ -1,8 +1,8 @@
 #include "Process.h"
 
 // Constructor
-Proceso::Proceso(int id, const std::vector<std::string> &instrucciones, TablaDePaginas *tablaPaginas)
-    : id(id), instrucciones(instrucciones), estado("esperando"), tablaPaginas(tablaPaginas) {}
+Proceso::Proceso(int id, TablaDePaginas *tablaPaginas)
+    : id(id), estado("esperando"), tablaPaginas(tablaPaginas) {}
 
 // Obtener ID
 int Proceso::obtenerId() const
