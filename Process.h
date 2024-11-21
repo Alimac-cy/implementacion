@@ -3,20 +3,26 @@
 
 #include <vector>
 #include <string>
+#include "PageTable.h"
 
-enum ProcessState { EXECUTING, WAITING, FINISHED };
-
-class Process {
-public:
-    Process(int id);
-    void cargarInstrucciones(const std::vector<std::string>& instrucciones);
-    void ejecutar();
-
+class Proceso {
 private:
-    int id;
-    std::vector<std::string> instrucciones;
-    ProcessState estado;
-    // Tabla de páginas para el proceso
+    int id;                             // Identificador único del proceso.
+    std::vector<std::string> instrucciones; // Lista de instrucciones (pseudo-ensamblador).
+    std::string estado;                 // Estado del proceso (ejecutando, esperando, terminado).
+    TablaDePaginas* tablaPaginas;       // Tabla de páginas asociada al proceso.
+
+public:
+    // Constructor
+    Proceso(int id, const std::vector<std::string>& instrucciones, TablaDePaginas* tablaPaginas);
+
+    // Métodos
+    int obtenerId() const;
+    const std::vector<std::string>& obtenerInstrucciones() const;
+    std::string obtenerEstado() const;
+    void cambiarEstado(const std::string& nuevoEstado);
+    std::string obtenerSiguienteInstruccion();
+    TablaDePaginas* obtenerTablaDePaginas() const;
 };
 
 #endif // PROCESS_H
