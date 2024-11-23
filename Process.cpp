@@ -10,7 +10,7 @@ void Proceso::setTablaDePaginas(PageTable *tabla)
     tablaPaginas = tabla;
 }
 
-int Proceso::getId() const
+int Proceso::obtenerId() const
 {
     return id;
 }

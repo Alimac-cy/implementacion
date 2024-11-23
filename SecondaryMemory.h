@@ -17,10 +17,10 @@ public:
     // Constructor
     SecondaryMemory(const std::string &archivo);
 
-    std::vector<std::string> leer_pagina(int indice, int cantLineas);  // Lee lo correspondiente a una página del archivo y la devuelve.
-    bool escribir_pagina(int indice, std::vector<std::string> datos);  // Escribe lo correspondiente una página en el archivo.
-    bool eliminar_pagina(int indice, int cantLineas);                  // Elimina lo correspondiente una página del archivo.
-    std::vector<int> getIndicesMemSecundariaDeProcesos(int idProceso); // Le da a la PageTable todos los indices que necesita en almacenamiento.
+    std::vector<std::string> leerPagina(int indice, int cantLineas);  // Lee lo correspondiente a una página del archivo y la devuelve.
+    bool escribirPagina(int indice, std::vector<std::string> datos);  // Escribe lo correspondiente una página en el archivo.
+    bool eliminarPagina(int indice, int cantLineas);                  // Elimina lo correspondiente una página del archivo.
+    std::vector<int> obtenerIndicesMemSecundariaDeProcesos(int idProceso); // Le da a la PageTable todos los indices que necesita en almacenamiento.
 };
 
 #endif // SECONDARY_MEMORY_H

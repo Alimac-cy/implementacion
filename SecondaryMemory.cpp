@@ -12,18 +12,18 @@ SecondaryMemory::SecondaryMemory(const std::string &archivo)
         throw std::runtime_error("[ERROR] No se pudo abrir el archivo: " + archivo);
     }
 
-    int lineCount = 0;
-    std::string line;
+    int ContadorLinea = 0;
+    std::string linea;
 
-    while (std::getline(file, line))
+    while (std::getline(file, linea))
     {
-        lineCount++;
+        ContadorLinea++;
     }
 
-    tamano = lineCount;
+    tamano = ContadorLinea;
 }
 
-std::vector<std::string> SecondaryMemory::leer_pagina(int indice, int cantLineas)
+std::vector<std::string> SecondaryMemory::leerPagina(int indice, int cantLineas)
 {
     std::vector<std::string> pagina;
 
@@ -39,19 +39,19 @@ std::vector<std::string> SecondaryMemory::leer_pagina(int indice, int cantLineas
         throw std::runtime_error("[ERROR] No se pudo abrir el archivo para lectura: " + archivo);
     }
 
-    std::string line;
-    int currentLine = 0;
+    std::string linea;
+    int lineaActual = 0;
 
     // Leer el archivo línea por línea
-    while (std::getline(file, line))
+    while (std::getline(file, linea))
     {
-        if (currentLine >= indice && currentLine < indice + cantLineas)
+        if (lineaActual >= indice && lineaActual < indice + cantLineas)
         {
-            pagina.push_back(line);
+            pagina.push_back(linea);
         }
-        currentLine++;
+        lineaActual++;
 
-        if (currentLine >= indice + cantLineas)
+        if (lineaActual >= indice + cantLineas)
         {
             break;
         }
@@ -65,7 +65,7 @@ std::vector<std::string> SecondaryMemory::leer_pagina(int indice, int cantLineas
     return pagina;
 }
 
-bool SecondaryMemory::escribir_pagina(int indice, std::vector<std::string> datos)
+bool SecondaryMemory::escribirPagina(int indice, std::vector<std::string> datos)
 {
     if (indice < 0 || indice >= tamano || indice + datos.size() > tamano)
     {
@@ -103,7 +103,7 @@ bool SecondaryMemory::escribir_pagina(int indice, std::vector<std::string> datos
     return true;
 }
 
-bool SecondaryMemory::eliminar_pagina(int indice, int cantLineas)
+bool SecondaryMemory::eliminarPagina(int indice, int cantLineas)
 {
     if (indice < 0 || indice >= tamano || indice + cantLineas > tamano || cantLineas <= 0)
     {
@@ -140,7 +140,7 @@ bool SecondaryMemory::eliminar_pagina(int indice, int cantLineas)
     return true;
 }
 
-std::vector<int> SecondaryMemory::getIndicesMemSecundariaDeProcesos(int idProceso) // Le da a la PageTable todos los indices que necesita en almacenamiento.
+std::vector<int> SecondaryMemory::obtenerIndicesMemSecundariaDeProcesos(int idProceso) // Le da a la PageTable todos los indices que necesita en almacenamiento.
 {
     std::vector<int> indices;
 
@@ -151,24 +151,24 @@ std::vector<int> SecondaryMemory::getIndicesMemSecundariaDeProcesos(int idProces
     }
 
     std::string line;
-    int currentLine = 0;
-    int currentProcess = 0;
+    int lineaActual = 0;
+    int procesoActual = 0;
 
     while (std::getline(file, line))
     {
         if (line == "+")
         {
-            currentProcess++; // Avanzar al siguiente proceso
-            currentLine++;
+            procesoActual++; // Avanzar al siguiente proceso
+            lineaActual++;
             continue;
         }
 
-        if (currentProcess == idProceso)
+        if (procesoActual == idProceso)
         {
-            indices.push_back(currentLine);
+            indices.push_back(lineaActual);
         }
 
-        currentLine++;
+        lineaActual++;
     }
 
     if (indices.empty())

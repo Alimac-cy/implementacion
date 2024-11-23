@@ -25,17 +25,17 @@ public:
     std::vector<Pagina> tabla;
 
     // Metodos
-    bool AgregarEntrada(int numeroPag, int marco, int indiceSecundario, bool valido);
-    bool EliminarEntrada(int numeroPag);
-    int ObtenerMarco(int numeroPag);
+    bool agregarEntrada(int numeroPag, int marco, int indiceSecundario, bool valido);
+    bool eliminarEntrada(int numeroPag);
+    int obtenerMarco(int numeroPag);
     int indiceSecundario(int numeroPag);
-    void ActualizarFrame(int numeroPag, int marco);
-    void ActualizarValidez(int numeroPag, bool validez);
-    void ActualizarReferencia(int numeroPag, bool referencia);
-    void ActualizarModificacion(int numeroPag, bool modificado);
-    int ObtenerNumPaginas() const;
-    bool EstaSecundario(int numeroPag) const;
-    bool EstaModificado(int numeroPag) const;
+    void actualizarFrame(int numeroPag, int marco);
+    void actualizarValidez(int numeroPag, bool validez);
+    void actualizarReferencia(int numeroPag, bool referencia);
+    void actualizarModificacion(int numeroPag, bool modificado);
+    int obtenerNumPaginas() const;
+    bool estaSecundario(int numeroPag) const;
+    bool estaModificado(int numeroPag) const;
 
     // Algoritmos de reemplazo
     int buscarReemplazoNRU(); // Para memoria principal

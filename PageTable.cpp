@@ -5,7 +5,7 @@ PageTable::PageTable(int numPaginas) : numPaginas(numPaginas)
     tabla.resize(numPaginas, {-1, -1, false, false, false, 0});
 }
 
-bool PageTable::AgregarEntrada(int numeroPag, int marco, int indiceSecundario, bool valido)
+bool PageTable::agregarEntrada(int numeroPag, int marco, int indiceSecundario, bool valido)
 {
 
     if (numeroPag < 0 || numeroPag >= tabla.size())
@@ -17,7 +17,7 @@ bool PageTable::AgregarEntrada(int numeroPag, int marco, int indiceSecundario, b
     return true;
 }
 
-bool PageTable::EliminarEntrada(int numeroPag)
+bool PageTable::eliminarEntrada(int numeroPag)
 {
     if (numeroPag < 0 || numeroPag >= tabla.size())
     {
@@ -28,7 +28,7 @@ bool PageTable::EliminarEntrada(int numeroPag)
     return true;
 }
 
-int PageTable::ObtenerMarco(int numeroPag)
+int PageTable::obtenerMarco(int numeroPag)
 {
     if (numeroPag < 0 || numeroPag >= tabla.size())
         return -1; // Retornar una entrada inválida si el índice está fuera de rango
@@ -44,7 +44,7 @@ int PageTable::indiceSecundario(int numeroPag)
     return tabla[numeroPag].indiceSecundario;
 }
 
-void PageTable::ActualizarValidez(int numeroPag, bool validez)
+void PageTable::actualizarValidez(int numeroPag, bool validez)
 {
     if (numeroPag < 0 || numeroPag >= tabla.size())
         return;
@@ -57,7 +57,7 @@ void PageTable::ActualizarValidez(int numeroPag, bool validez)
     }
 }
 
-void PageTable::ActualizarReferencia(int numeroPag, bool referencia)
+void PageTable::actualizarReferencia(int numeroPag, bool referencia)
 {
     if (numeroPag < 0 || numeroPag >= tabla.size())
         return;
@@ -66,7 +66,7 @@ void PageTable::ActualizarReferencia(int numeroPag, bool referencia)
     tabla[numeroPag].contador = 0;
 }
 
-void PageTable::ActualizarModificacion(int numeroPag, bool modificado)
+void PageTable::actualizarModificacion(int numeroPag, bool modificado)
 {
     if (numeroPag < 0 || numeroPag >= tabla.size())
         return;
@@ -75,12 +75,12 @@ void PageTable::ActualizarModificacion(int numeroPag, bool modificado)
     tabla[numeroPag].contador = 0;
 }
 
-int PageTable::ObtenerNumPaginas() const
+int PageTable::obtenerNumPaginas() const
 {
     return numPaginas;
 }
 
-bool PageTable::EstaSecundario(int numeroPag) const
+bool PageTable::estaSecundario(int numeroPag) const
 {
     return tabla[numeroPag].valido;
 }
@@ -151,11 +151,11 @@ void PageTable::incrementarContadores()
     reiniciarBits();
 }
 
-bool PageTable::EstaModificado(int numeroPag) const
+bool PageTable::estaModificado(int numeroPag) const
 {
     return tabla[numeroPag].modificado;
 }
 
-void PageTable::ActualizarFrame(int numeroPag, int marco){
+void PageTable::actualizarFrame(int numeroPag, int marco){
     tabla[numeroPag].marco = marco;
 }

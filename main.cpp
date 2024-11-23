@@ -28,7 +28,7 @@ int main()
             std::cout << "Proceso 0, Dirección Lógica " << i << ":\n";
             direccionFisica = mmu.traducirDireccion(i, 0);
             std::cout << "Dirección Física: " << direccionFisica << "\n";
-            std::string instruccion = mmu.getMemoriaPrincipal().obtener_instruccion(direccionFisica);
+            std::string instruccion = mmu.getMemoriaPrincipal().obtenerInstruccion(direccionFisica);
             std::cout << "Instrucción específica: " << instruccion << "\n";
         }
 
@@ -40,7 +40,7 @@ int main()
             direccionFisica = mmu.traducirDireccion(i, 1);
             std::cout << "Dirección Física: " << direccionFisica << "\n";
 
-            std::string instruccion = mmu.getMemoriaPrincipal().obtener_instruccion(direccionFisica);
+            std::string instruccion = mmu.getMemoriaPrincipal().obtenerInstruccion(direccionFisica);
             std::cout << "Instrucción específica: " << instruccion << "\n";
         }
 

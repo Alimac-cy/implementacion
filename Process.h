@@ -18,7 +18,7 @@ public:
 
     // Métodos
     void setTablaDePaginas(PageTable *tabla);
-    int getId() const;
+    int obtenerId() const;
     PageTable *ObtenerTablaDePaginas() const;
     int ObtenerTotalInstrucciones() const;
     void setTotalInstrucciones (int total);

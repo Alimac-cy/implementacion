@@ -9,7 +9,7 @@ PrimaryMemory::PrimaryMemory(int TamanoFrame, int Tamano)
 }
 
 // Método para asignar un marco libre
-int PrimaryMemory::asignar_frame()
+int PrimaryMemory::asignarFrame()
 {
     for (int i = 0; i < Marcos.size(); ++i)
     {
@@ -22,7 +22,7 @@ int PrimaryMemory::asignar_frame()
 }
 
 // Método para liberar un marco
-bool PrimaryMemory::liberar_frame(int indice)
+bool PrimaryMemory::liberarFrame(int indice)
 {
     if (indice >= 0 && indice < Marcos.size())
     {
@@ -36,7 +36,7 @@ bool PrimaryMemory::liberar_frame(int indice)
 }
 
 // Método para obtener un marco
-std::vector<std::string> PrimaryMemory::obtener_frame(int indice)
+std::vector<std::string> PrimaryMemory::obtenerFrame(int indice)
 {
     if (indice >= 0 && indice < Marcos.size())
     {
@@ -46,9 +46,9 @@ std::vector<std::string> PrimaryMemory::obtener_frame(int indice)
 }
 
 // Método para actualizar un marco
-bool PrimaryMemory::actualizar_frame(int indice, const std::vector<std::string> &datos)
+bool PrimaryMemory::actualizarFrame(int indice, const std::vector<std::string> &datos)
 {
-    if (indice >= 0 && indice < Marcos.size() && datos.size() <= static_cast<size_t>(TamanoFrame))
+    if (indice >= 0 && indice < Marcos.size() && datos.size() <= TamanoFrame)
     {
         Marcos[indice] = datos; // Actualiza el marco con los datos proporcionados.
         return true;
@@ -56,11 +56,10 @@ bool PrimaryMemory::actualizar_frame(int indice, const std::vector<std::string> 
     return false;
 }
 
-std::string PrimaryMemory::obtenerInstruccion(int direccionFisica) const
+std::string PrimaryMemory::obtenerInstruccion(int direccionFisica)
 {
-    int frameSize = 4; // Tamaño del frame
-    int marco = direccionFisica / frameSize;
-    int desplazamiento = direccionFisica % frameSize;
+    int marco = direccionFisica / TamanoFrame;
+    int desplazamiento = direccionFisica % TamanoFrame;
 
     if (marco < 0 || marco >= Marcos.size())
     {
@@ -84,25 +83,9 @@ void PrimaryMemory::imprimirEstado() const
             }
             else
             {
-                std::cout << linea << " _ ";
+                std::cout << linea << " ";
             }
         }
         std::cout << "\n";
     }
-}
-
-std::string PrimaryMemory::obtener_instruccion(int direccionFisica)
-{
-    int tamanoFrame = TamanoFrame; // Suponiendo que TamanoFrame es accesible
-    int marco = direccionFisica / tamanoFrame;
-    int desplazamiento = direccionFisica % tamanoFrame;
-
-    if (marco >= 0 && marco < Marcos.size())
-    {
-        if (desplazamiento >= 0 && desplazamiento < Marcos[marco].size())
-        {
-            return Marcos[marco][desplazamiento];
-        }
-    }
-    return "";
 }

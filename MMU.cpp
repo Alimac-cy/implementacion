@@ -22,18 +22,18 @@ int MMU::traducirDireccion(int direccionLogica, int procesoId)
     int paginaLogica = direccionLogica / 4; // Tamaño de página: 4 líneas
     int offset = direccionLogica % 4;
 
-    if (paginaLogica < 0 || paginaLogica >= tablaPaginas->ObtenerNumPaginas())
+    if (paginaLogica < 0 || paginaLogica >= tablaPaginas->obtenerNumPaginas())
     {
         std::cerr << "[ERROR] Dirección lógica fuera de rango.\n";
         return -1;
     }
 
-    if (!tablaPaginas->EstaSecundario(paginaLogica))
+    if (!tablaPaginas->estaSecundario(paginaLogica))
     {
         manejarFalloDePagina(paginaLogica, proceso);
     }
 
-    int marco = tablaPaginas->ObtenerMarco(paginaLogica);
+    int marco = tablaPaginas->obtenerMarco(paginaLogica);
     int direccionFisica = (marco * 4) + offset;
 
     return direccionFisica;
@@ -45,19 +45,19 @@ void MMU::manejarFalloDePagina(int paginaLogica, Proceso *proceso)
     {
         // Obtener el índice secundario para la página lógica
         int indiceSecundario = proceso->ObtenerTablaDePaginas()->indiceSecundario(paginaLogica);
-        std::vector<std::string> data = memoriaSecundaria.leer_pagina(indiceSecundario, 4);
+        std::vector<std::string> data = memoriaSecundaria.leerPagina(indiceSecundario, 4);
 
         int marcoLibre;
-        int marcosAsignados = contarMarcosAsignados(proceso->getId());
+        int marcosAsignados = contarMarcosAsignados(proceso->obtenerId());
 
         // Si el proceso no ha alcanzado su límite de marcos, intenta asignar un marco libre
         if (marcosAsignados < frameLimit)
         {
-            marcoLibre = memoriaPrincipal.asignar_frame();
+            marcoLibre = memoriaPrincipal.asignarFrame();
             if (marcoLibre != -1)
             {
                 // Agregar el marco asignado al proceso en processFrames
-                processFrames.push_back(std::make_pair(proceso->getId(), marcoLibre));
+                processFrames.push_back(std::make_pair(proceso->obtenerId(), marcoLibre));
             }
         }
         else
@@ -70,27 +70,27 @@ void MMU::manejarFalloDePagina(int paginaLogica, Proceso *proceso)
         {
             // No hay marcos disponibles o se superó el límite; aplicar reemplazo
             int paginaReemplazo = proceso->ObtenerTablaDePaginas()->buscarReemplazoNRU();
-            int marcoReemplazo = proceso->ObtenerTablaDePaginas()->ObtenerMarco(paginaReemplazo);
+            int marcoReemplazo = proceso->ObtenerTablaDePaginas()->obtenerMarco(paginaReemplazo);
 
             // Si la página está modificada, escribirla en memoria secundaria
-            if (proceso->ObtenerTablaDePaginas()->EstaModificado(paginaReemplazo))
+            if (proceso->ObtenerTablaDePaginas()->estaModificado(paginaReemplazo))
             {
-                std::vector<std::string> datosReemplazo = memoriaPrincipal.obtener_frame(marcoReemplazo);
-                memoriaSecundaria.escribir_pagina(proceso->ObtenerTablaDePaginas()->indiceSecundario(paginaReemplazo), datosReemplazo);
+                std::vector<std::string> datosReemplazo = memoriaPrincipal.obtenerFrame(marcoReemplazo);
+                memoriaSecundaria.escribirPagina(proceso->ObtenerTablaDePaginas()->indiceSecundario(paginaReemplazo), datosReemplazo);
             }
 
             // Liberar el marco del reemplazo
-            memoriaPrincipal.liberar_frame(marcoReemplazo);
-            proceso->ObtenerTablaDePaginas()->ActualizarValidez(paginaReemplazo, false);
+            memoriaPrincipal.liberarFrame(marcoReemplazo);
+            proceso->ObtenerTablaDePaginas()->actualizarValidez(paginaReemplazo, false);
 
             // Asignar marcoLibre al marco que acabamos de liberar
             marcoLibre = marcoReemplazo;
         }
 
         // Cargar la nueva página en marcoLibre
-        memoriaPrincipal.actualizar_frame(marcoLibre, data);
-        proceso->ObtenerTablaDePaginas()->ActualizarFrame(paginaLogica, marcoLibre);
-        proceso->ObtenerTablaDePaginas()->ActualizarValidez(paginaLogica, true);
+        memoriaPrincipal.actualizarFrame(marcoLibre, data);
+        proceso->ObtenerTablaDePaginas()->actualizarFrame(paginaLogica, marcoLibre);
+        proceso->ObtenerTablaDePaginas()->actualizarValidez(paginaLogica, true);
     }
     catch (const std::exception &e)
     {
@@ -101,7 +101,7 @@ void MMU::manejarFalloDePagina(int paginaLogica, Proceso *proceso)
 
 void MMU::asignarProceso(Proceso *proceso)
 {
-    std::vector<int> indices = memoriaSecundaria.getIndicesMemSecundariaDeProcesos(proceso->getId());
+    std::vector<int> indices = memoriaSecundaria.obtenerIndicesMemSecundariaDeProcesos(proceso->obtenerId());
     proceso->setTotalInstrucciones(indices.size());
     for (int indice : indices)
     {
@@ -125,7 +125,7 @@ void MMU::asignarProceso(Proceso *proceso)
         {
             indiceSecundario = -1;
         }
-        tabla->AgregarEntrada(i, -1, indiceSecundario, false);
+        tabla->agregarEntrada(i, -1, indiceSecundario, false);
     }
 
     proceso->setTablaDePaginas(tabla);
@@ -146,7 +146,7 @@ void MMU::liberarProceso(int procesoId)
             int marco = processFrames[i].second;
 
             // Liberar el marco en memoria principal
-            memoriaPrincipal.liberar_frame(marco);
+            memoriaPrincipal.liberarFrame(marco);
 
             // Eliminar el par del vector processFrames
             processFrames.erase(processFrames.begin() + i);
@@ -160,7 +160,7 @@ void MMU::liberarProceso(int procesoId)
     for (size_t i = 0; i < procesosActuales.size();)
     {
         // Si encontramos el proceso con el procesoId
-        if (procesosActuales[i]->getId() == procesoId)
+        if (procesosActuales[i]->obtenerId() == procesoId)
         {
             // Opcional: Liberar la memoria del objeto Proceso si es necesario
             delete procesosActuales[i];
