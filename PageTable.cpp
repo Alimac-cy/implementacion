@@ -75,9 +75,14 @@ void PageTable::ActualizarModificacion(int numeroPag, bool modificado)
     tabla[numeroPag].contador = 0;
 }
 
-int PageTable::getNumPaginas() const
+int PageTable::ObtenerNumPaginas() const
 {
     return numPaginas;
+}
+
+bool PageTable::EstaSecundario(int numeroPag) const
+{
+    return tabla[numeroPag].valido;
 }
 
 int PageTable::buscarReemplazoNRU()
@@ -113,7 +118,7 @@ int PageTable::buscarReemplazoNRU()
     for (int i = 0; i < tabla.size(); ++i)
     {
         if (tabla[i].referenciado && tabla[i].modificado && tabla[i].valido)
-         {
+        {
             incrementarContadores();
             return i;
         }
@@ -144,4 +149,13 @@ void PageTable::incrementarContadores()
         }
     }
     reiniciarBits();
+}
+
+bool PageTable::EstaModificado(int numeroPag) const
+{
+    return tabla[numeroPag].modificado;
+}
+
+void PageTable::ActualizarFrame(int numeroPag, int marco){
+    tabla[numeroPag].marco = marco;
 }

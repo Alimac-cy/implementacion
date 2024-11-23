@@ -4,7 +4,7 @@
 PrimaryMemory::PrimaryMemory(int TamanoFrame, int Tamano)
     : TamanoFrame(TamanoFrame), Tamano(Tamano)
 {
-    int numMarcos = Tamano / TamanoFrame;
+    int numMarcos = (Tamano + TamanoFrame - 1) / TamanoFrame;            // Redondear hacia arriba
     Marcos.resize(numMarcos, std::vector<std::string>(TamanoFrame, "")); // Inicializa todos los marcos con líneas vacías.
 }
 
@@ -55,3 +55,41 @@ bool PrimaryMemory::actualizar_frame(int indice, const std::vector<std::string> 
     }
     return false;
 }
+
+std::string PrimaryMemory::obtenerInstruccion(int direccionFisica) const
+{
+    int frameSize = 4; // Tamaño del frame
+    int marco = direccionFisica / frameSize;
+    int desplazamiento = direccionFisica % frameSize;
+
+    if (marco < 0 || marco >= Marcos.size())
+    {
+        return "";
+    }
+
+    return Marcos[marco][desplazamiento];
+}
+
+
+void PrimaryMemory::imprimirEstado() const
+{
+    std::cout << "[ESTADO DE LA MEMORIA PRINCIPAL]\n";
+    for (int i = 0; i < Marcos.size(); ++i)
+    {
+        std::cout << "Marco " << i << ": ";
+        for (const auto &linea : Marcos[i])
+        {
+            if (linea.empty())
+            {
+                std::cout << "[VACÍO] ";
+            }
+            else
+            {
+                std::cout << linea << " _ ";
+            }
+        }
+        std::cout << "\n";
+    }
+}
+
+

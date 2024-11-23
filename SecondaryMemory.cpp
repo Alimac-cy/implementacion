@@ -93,7 +93,7 @@ bool SecondaryMemory::escribir_pagina(int indice, std::vector<std::string> datos
     std::ofstream fileOut(archivo);
     if (!fileOut)
     {
-        return false; // [ERROR] 
+        return false; // [ERROR]
     }
     for (const auto &line : contenidoArchivo)
     {
@@ -107,12 +107,12 @@ bool SecondaryMemory::eliminar_pagina(int indice, int cantLineas)
 {
     if (indice < 0 || indice >= tamano || indice + cantLineas > tamano || cantLineas <= 0)
     {
-        return false; // [ERROR] 
+        return false; // [ERROR]
     }
     std::ifstream fileIn(archivo);
     if (!fileIn)
     {
-        return false; // [ERROR] 
+        return false; // [ERROR]
     }
     std::vector<std::string> contenidoArchivo;
     std::string linea;
@@ -130,7 +130,7 @@ bool SecondaryMemory::eliminar_pagina(int indice, int cantLineas)
     std::ofstream fileOut(archivo);
     if (!fileOut)
     {
-        return false; // [ERROR] 
+        return false; // [ERROR]
     }
     for (const auto &line : contenidoArchivo)
     {

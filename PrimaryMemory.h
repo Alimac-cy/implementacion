@@ -17,10 +17,12 @@ public:
     PrimaryMemory(int TamanoFrame, int Tamano);
 
     // Métodos.
-    int asignar_frame();                                              // Asigna un marco de página libre.
-    bool liberar_frame(int indice);                                   // Libera un marco de página previamente asignado.
-    std::vector<std::string> obtener_frame(int indice);               // Devuelve el marco en el índice especificado.
+    int asignar_frame();                                                      // Asigna un marco de página libre.
+    bool liberar_frame(int indice);                                           // Libera un marco de página previamente asignado.
+    std::vector<std::string> obtener_frame(int indice);                       // Devuelve el marco en el índice especificado.
     bool actualizar_frame(int indice, const std::vector<std::string> &datos); // Actualiza el contenido de un marco específico.
+    std::string obtenerInstruccion(int direccionFisica) const;
+    void imprimirEstado() const;
 };
 
 #endif // PRIMARY_MEMORY_H
