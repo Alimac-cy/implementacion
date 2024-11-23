@@ -103,11 +103,6 @@ void MMU::asignarProceso(Proceso *proceso)
 {
     std::vector<int> indices = memoriaSecundaria.obtenerIndicesMemSecundariaDeProcesos(proceso->obtenerId());
     proceso->setTotalInstrucciones(indices.size());
-    for (int indice : indices)
-    {
-        std::cout << indice << " ";
-    }
-    std::cout << "\n";
 
     int lineasPorPagina = 4;
     int paginasNecesarias = (indices.size() + lineasPorPagina - 1) / lineasPorPagina;
