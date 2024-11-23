@@ -98,7 +98,6 @@ void MMU::manejarFalloDePagina(int paginaLogica, Proceso *proceso)
     }
 }
 
-
 void MMU::asignarProceso(Proceso *proceso)
 {
     std::vector<int> indices = memoriaSecundaria.obtenerIndicesMemSecundariaDeProcesos(proceso->obtenerId());
@@ -128,12 +127,13 @@ void MMU::asignarProceso(Proceso *proceso)
     if (!procesosActuales.empty())
     {
         frameLimit = totalFrames / procesosActuales.size();
+        // std::cout<<"frame limit actual: "<<frameLimit <<std::endl;
     }
 }
 void MMU::liberarProceso(int procesoId)
 {
     // Liberar los marcos asignados al proceso en memoria principal y eliminarlos de processFrames
-    for (size_t i = 0; i < processFrames.size();)
+    for (int i = 0; i < processFrames.size();)
     {
         // Si el par en processFrames corresponde al procesoId
         if (processFrames[i].first == procesoId)
@@ -142,28 +142,22 @@ void MMU::liberarProceso(int procesoId)
 
             // Liberar el marco en memoria principal
             memoriaPrincipal.liberarFrame(marco);
-
-            // Eliminar el par del vector processFrames
             processFrames.erase(processFrames.begin() + i);
         }
         else
         {
+            // Incrementamos 'i' si no eliminamos un elemento
             ++i;
         }
     }
     // Remover el proceso de la lista de procesos actuales
-    for (size_t i = 0; i < procesosActuales.size();)
+    for (int i = 0; i < procesosActuales.size();)
     {
         // Si encontramos el proceso con el procesoId
         if (procesosActuales[i]->obtenerId() == procesoId)
         {
-            //Liberar la memoria del objeto Proceso si es necesario
-            delete procesosActuales[i];
-
             // Eliminar el puntero del vector procesosActuales
             procesosActuales.erase(procesosActuales.begin() + i);
-
-            // No incrementamos 'i' por la misma razón anterior
         }
         else
         {

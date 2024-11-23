@@ -27,7 +27,6 @@ int main()
         Proceso proceso12(12);
         Proceso proceso13(13);
         Proceso proceso14(14);
-        Proceso proceso15(15);
 
         // Asignar procesos a la MMU
         mmu.asignarProceso(&proceso0);
@@ -45,7 +44,8 @@ int main()
         mmu.asignarProceso(&proceso12);
         mmu.asignarProceso(&proceso13);
         mmu.asignarProceso(&proceso14);
-        mmu.asignarProceso(&proceso15);
+
+        std::cout << "\n[PROCESAMIENTO] 16 Procesos actuales por lo que el frame limit es: 1 para cada proceso\n";
 
         // Simular accesos a direcciones lógicas para cada proceso
         std::cout << "\n[EJECUCIÓN] Acceso a direcciones lógicas del proceso 0:\n";
@@ -76,6 +76,16 @@ int main()
         std::cout << "Proceso 1, Dirección Lógica 5 (Fuera de rango):\n";
         direccionFisica = mmu.traducirDireccion(5, 1);
         std::cout << "Dirección Física: " << direccionFisica << "\n";
+
+
+
+        // Mostrar el estado final de la memoria principal
+        std::cout << "\n[ESTADO FINAL DE LA MEMORIA PRINCIPAL]\n";
+        mmu.getMemoriaPrincipal().imprimirEstado();
+        
+        std::cout << "\nLiberar proceso 0:\n";
+        mmu.liberarProceso(proceso0.obtenerId());
+
 
         // Mostrar el estado final de la memoria principal
         std::cout << "\n[ESTADO FINAL DE LA MEMORIA PRINCIPAL]\n";
