@@ -70,7 +70,6 @@ std::string PrimaryMemory::obtenerInstruccion(int direccionFisica) const
     return Marcos[marco][desplazamiento];
 }
 
-
 void PrimaryMemory::imprimirEstado() const
 {
     std::cout << "[ESTADO DE LA MEMORIA PRINCIPAL]\n";
@@ -92,4 +91,18 @@ void PrimaryMemory::imprimirEstado() const
     }
 }
 
+std::string PrimaryMemory::obtener_instruccion(int direccionFisica)
+{
+    int tamanoFrame = TamanoFrame; // Suponiendo que TamanoFrame es accesible
+    int marco = direccionFisica / tamanoFrame;
+    int desplazamiento = direccionFisica % tamanoFrame;
 
+    if (marco >= 0 && marco < Marcos.size())
+    {
+        if (desplazamiento >= 0 && desplazamiento < Marcos[marco].size())
+        {
+            return Marcos[marco][desplazamiento];
+        }
+    }
+    return "";
+}

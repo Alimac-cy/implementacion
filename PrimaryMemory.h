@@ -23,6 +23,7 @@ public:
     bool actualizar_frame(int indice, const std::vector<std::string> &datos); // Actualiza el contenido de un marco específico.
     std::string obtenerInstruccion(int direccionFisica) const;
     void imprimirEstado() const;
+    std::string obtener_instruccion(int direccionFisica);
 };
 
 #endif // PRIMARY_MEMORY_H
