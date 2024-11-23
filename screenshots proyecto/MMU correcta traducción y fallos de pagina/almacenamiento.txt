@@ -1,0 +1,10 @@
+LOAD A, 10
+ADD B, A
+SUB C, 5
+DIV C, A
++
+STORE A, 20
+MUL D, A
+DIV C, B
+DIV C, D
++

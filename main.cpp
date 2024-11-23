@@ -77,8 +77,6 @@ int main()
         direccionFisica = mmu.traducirDireccion(5, 1);
         std::cout << "Dirección Física: " << direccionFisica << "\n";
 
-
-
         // Mostrar el estado final de la memoria principal
         std::cout << "\n[ESTADO FINAL DE LA MEMORIA PRINCIPAL]\n";
         mmu.getMemoriaPrincipal().imprimirEstado();
