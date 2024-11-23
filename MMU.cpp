@@ -162,7 +162,7 @@ void MMU::liberarProceso(int procesoId)
         // Si encontramos el proceso con el procesoId
         if (procesosActuales[i]->obtenerId() == procesoId)
         {
-            // Opcional: Liberar la memoria del objeto Proceso si es necesario
+            //Liberar la memoria del objeto Proceso si es necesario
             delete procesosActuales[i];
 
             // Eliminar el puntero del vector procesosActuales
@@ -197,21 +197,6 @@ int MMU::contarMarcosAsignados(int processId)
         }
     }
     return count;
-}
-
-void MMU::removerMarcoDeProceso(int processId, int marco)
-{
-    for (std::vector<std::pair<int, int>>::iterator it = processFrames.begin(); it != processFrames.end();)
-    {
-        if (it->first == processId && it->second == marco)
-        {
-            it = processFrames.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
 }
 
 PrimaryMemory MMU::getMemoriaPrincipal() const

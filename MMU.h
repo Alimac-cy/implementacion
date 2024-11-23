@@ -30,7 +30,6 @@ public:
     void liberarProceso(int procesoId);
     int contarMarcosAsignados(int processId);
     PrimaryMemory getMemoriaPrincipal() const;
-    void removerMarcoDeProceso(int processId, int marco);
 };
 
 #endif // MMU_H
