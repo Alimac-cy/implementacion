@@ -1,6 +1,7 @@
 #ifndef PAGE_TABLE_H
 #define PAGE_TABLE_H
 #include <vector>
+#include <iostream>
 struct Pagina
 {
     int marco;            // Número del marco en memoria física.
@@ -9,13 +10,13 @@ struct Pagina
     bool modificado;      // Indica si la página fue modificada.
     bool referenciado;    // Indica si la página fue referenciada recientemente.
     int contador;         // Contador para reiniciar bits periódicamente
+    int instruccionesEnPagina; //Cantidad de instrucciones de pagina
 };
 
 class PageTable
 {
 private:
     int numPaginas;
-
     // Método para resetear bits cuando el contador supera el umbral
     void reiniciarBits();
 
@@ -25,7 +26,7 @@ public:
     std::vector<Pagina> tabla;
 
     // Metodos
-    bool agregarEntrada(int numeroPag, int marco, int indiceSecundario, bool valido);
+    bool agregarEntrada(int numeroPag, int marco, int indiceSecundario, bool valido, int instruccionesEnPagina);
     bool eliminarEntrada(int numeroPag);
     int obtenerMarco(int numeroPag);
     int indiceSecundario(int numeroPag);
@@ -36,6 +37,7 @@ public:
     int obtenerNumPaginas() const;
     bool estaSecundario(int numeroPag) const;
     bool estaModificado(int numeroPag) const;
+    int obtenerInstruccionesEnPagina(int numeroPag) const;
 
     // Algoritmos de reemplazo
     int buscarReemplazoNRU(); // Para memoria principal

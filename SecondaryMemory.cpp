@@ -57,47 +57,55 @@ std::vector<std::string> SecondaryMemory::leerPagina(int indice, int cantLineas)
         }
     }
 
-    if (pagina.size() < static_cast<size_t>(cantLineas))
-    {
-        throw std::runtime_error("[ERROR] No se pudieron leer todas las líneas solicitadas del archivo.");
-    }
 
     return pagina;
 }
 
 bool SecondaryMemory::escribirPagina(int indice, std::vector<std::string> datos)
 {
-    if (indice < 0 || indice >= tamano || indice + datos.size() > tamano)
+       if (indice < 0 || indice >= tamano)
     {
         return false;
     }
+
     std::ifstream fileIn(archivo);
     if (!fileIn)
     {
         return false;
     }
+
     std::vector<std::string> contenidoArchivo;
     std::string linea;
+
     // Leer todo el contenido del archivo en memoria
     while (std::getline(fileIn, linea))
     {
         contenidoArchivo.push_back(linea);
     }
     fileIn.close();
-    // Reemplazar las líneas
+
+    // Reemplazar las líneas correspondientes con los datos proporcionados solo si tienen contenido
     for (size_t i = 0; i < datos.size(); ++i)
     {
-        contenidoArchivo[indice + i] = datos[i];
+        if (indice + i < contenidoArchivo.size())
+        {
+            if (!datos[i].empty())
+            {
+                contenidoArchivo[indice + i] = datos[i];
+            }
+            // Si la línea de datos está vacía, no hacemos nada
+        }
     }
+
     // Escribimos el contenido actualizado de vuelta al archivo
     std::ofstream fileOut(archivo);
     if (!fileOut)
     {
         return false; // [ERROR]
     }
-    for (const auto &line : contenidoArchivo)
+    for (const auto &linea : contenidoArchivo)
     {
-        fileOut << line << "\n";
+        fileOut << linea << "\n";
     }
     fileOut.close();
     return true;

@@ -50,7 +50,13 @@ bool PrimaryMemory::actualizarFrame(int indice, const std::vector<std::string> &
 {
     if (indice >= 0 && indice < Marcos.size() && datos.size() <= TamanoFrame)
     {
-        Marcos[indice] = datos; // Actualiza el marco con los datos proporcionados.
+        Marcos[indice].clear();
+        Marcos[indice].resize(TamanoFrame, ""); // Rellenar con cadenas vacías
+        // Copiar los datos disponibles
+        for (size_t i = 0; i < datos.size(); ++i)
+        {
+            Marcos[indice][i] = datos[i];
+        }
         return true;
     }
     return false;
@@ -66,7 +72,44 @@ std::string PrimaryMemory::obtenerInstruccion(int direccionFisica)
         return "";
     }
 
+    if (desplazamiento < 0 || desplazamiento >= Marcos[marco].size())
+    {
+        return ""; // Posición inválida dentro del marco
+    }
+
     return Marcos[marco][desplazamiento];
+}
+
+bool PrimaryMemory::actualizarInstruccion(int direccionFisica, const std::string &nuevaInstruccion)
+{
+    int marco = direccionFisica / TamanoFrame;
+    int offset = direccionFisica % TamanoFrame;
+
+    // Validar marco y offset
+    if (marco < 0 || marco >= Marcos.size())
+    {
+        std::cerr << "[ERROR] Dirección física fuera de rango (marco inválido): " << direccionFisica << "\n";
+        return false;
+    }
+    if (offset < 0)
+    {
+        std::cerr << "[ERROR] Offset negativo en la dirección física: " << direccionFisica << "\n";
+        return false;
+    }
+    // Si el marco no tiene suficiente tamaño, redimensionar
+    if (offset >= Marcos[marco].size())
+    {
+        if (offset >= TamanoFrame)
+        {
+            std::cerr << "[ERROR] Offset excede el tamaño máximo del marco: " << direccionFisica << "\n";
+            return false;
+        }
+        Marcos[marco].resize(offset + 1, ""); // Inicializar nuevas instrucciones como vacías
+    }
+    // Actualizar 
+    Marcos[marco][offset] = nuevaInstruccion;
+
+    return true;
 }
 
 void PrimaryMemory::imprimirEstado() const

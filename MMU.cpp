@@ -27,6 +27,13 @@ int MMU::traducirDireccion(int direccionLogica, int procesoId)
         std::cerr << "[ERROR] Dirección lógica fuera de rango.\n";
         return -1;
     }
+    int instruccionesEnPagina = tablaPaginas->obtenerInstruccionesEnPagina(paginaLogica);
+
+    if (offset >= instruccionesEnPagina)
+    {
+        std::cerr << "[ERROR] Instrucines en pagina: " << instruccionesEnPagina << "\n";
+        return -1;
+    }
 
     if (!tablaPaginas->estaSecundario(paginaLogica))
     {
@@ -45,7 +52,9 @@ void MMU::manejarFalloDePagina(int paginaLogica, Proceso *proceso)
     {
         // Obtener el índice secundario para la página lógica
         int indiceSecundario = proceso->ObtenerTablaDePaginas()->indiceSecundario(paginaLogica);
-        std::vector<std::string> data = memoriaSecundaria.leerPagina(indiceSecundario, 4);
+        int instrucionesPagina = proceso->ObtenerTablaDePaginas()->obtenerInstruccionesEnPagina(paginaLogica);
+
+        std::vector<std::string> data = memoriaSecundaria.leerPagina(indiceSecundario, instrucionesPagina);
 
         int marcoLibre;
         int marcosAsignados = contarMarcosAsignados(proceso->obtenerId());
@@ -101,7 +110,8 @@ void MMU::manejarFalloDePagina(int paginaLogica, Proceso *proceso)
 void MMU::asignarProceso(Proceso *proceso)
 {
     std::vector<int> indices = memoriaSecundaria.obtenerIndicesMemSecundariaDeProcesos(proceso->obtenerId());
-    proceso->setTotalInstrucciones(indices.size());
+    int totalInstrucciones = indices.size();
+    proceso->setTotalInstrucciones(totalInstrucciones);
 
     int lineasPorPagina = 4;
     int paginasNecesarias = (indices.size() + lineasPorPagina - 1) / lineasPorPagina;
@@ -110,6 +120,17 @@ void MMU::asignarProceso(Proceso *proceso)
     for (int i = 0; i < paginasNecesarias; ++i)
     {
         int indiceInicio = i * lineasPorPagina;
+        int instruccionesEnPagina;
+        int instruccionesRestantes = totalInstrucciones - indiceInicio;
+
+        if (instruccionesRestantes >= lineasPorPagina)
+        {
+            instruccionesEnPagina = lineasPorPagina;
+        }
+        else
+        {
+            instruccionesEnPagina = instruccionesRestantes;
+        }
         int indiceSecundario;
         if (indiceInicio < indices.size())
         {
@@ -119,7 +140,7 @@ void MMU::asignarProceso(Proceso *proceso)
         {
             indiceSecundario = -1;
         }
-        tabla->agregarEntrada(i, -1, indiceSecundario, false);
+        tabla->agregarEntrada(i, -1, indiceSecundario, false, instruccionesEnPagina);
     }
 
     proceso->setTablaDePaginas(tabla);
@@ -132,21 +153,73 @@ void MMU::asignarProceso(Proceso *proceso)
 }
 void MMU::liberarProceso(int procesoId)
 {
-    // Liberar los marcos asignados al proceso en memoria principal y eliminarlos de processFrames
+    // Buscar el proceso en procesosActuales
+    Proceso *proceso = nullptr;
+    for (auto p : procesosActuales)
+    {
+        if (p->obtenerId() == procesoId)
+        {
+            proceso = p;
+            break;
+        }
+    }
+    if (!proceso)
+    {
+        std::cerr << "[ERROR] Proceso con ID " << procesoId << " no encontrado.\n";
+        return;
+    }
+
+    PageTable *tablaPaginas = proceso->ObtenerTablaDePaginas();
+
+    // Iterar sobre los marcos asignados al proceso
     for (int i = 0; i < processFrames.size();)
     {
-        // Si el par en processFrames corresponde al procesoId
         if (processFrames[i].first == procesoId)
         {
             int marco = processFrames[i].second;
 
-            // Liberar el marco en memoria principal
-            memoriaPrincipal.liberarFrame(marco);
+            // Encontrar la página lógica que usa este marco
+            int paginaLogica = -1;
+            for (int p = 0; p < tablaPaginas->obtenerNumPaginas(); ++p)
+            {
+                if (tablaPaginas->obtenerMarco(p) == marco)
+                {
+                    paginaLogica = p;
+                    break;
+                }
+            }
+            if (paginaLogica != -1)
+            {
+                // Si la página está modificada
+                if (tablaPaginas->estaModificado(paginaLogica))
+                {
+                    // Obtener los datos del marco desde la memoria principal
+                    int indiceSecundario = tablaPaginas->indiceSecundario(paginaLogica);
+                    std::vector<std::string> datos = memoriaPrincipal.obtenerFrame(marco);
+
+                    // Escribir solo las líneas que tienen datos en el almacenamiento secundario
+                    if (memoriaSecundaria.escribirPagina(indiceSecundario, datos))
+                    {
+                        tablaPaginas->actualizarModificacion(paginaLogica, false);
+                    }
+                    else
+                    {
+                        std::cerr << "[ERROR] No se pudo escribir la página lógica " << paginaLogica << " del proceso " << procesoId << " en almacenamiento secundario.\n";
+                    }
+                }
+                // Liberar el marco en memoria principal
+                memoriaPrincipal.liberarFrame(marco);
+                tablaPaginas->actualizarValidez(paginaLogica, false);
+            }
+            else
+            {
+                std::cerr << "[ERROR] No se encontró página lógica para el marco " << marco << " del proceso " << procesoId << ".\n";
+            }
+            // Eliminar el marco de processFrames
             processFrames.erase(processFrames.begin() + i);
         }
         else
         {
-            // Incrementamos 'i' si no eliminamos un elemento
             ++i;
         }
     }
@@ -188,7 +261,29 @@ int MMU::contarMarcosAsignados(int processId)
     return count;
 }
 
-PrimaryMemory MMU::getMemoriaPrincipal() const
+PrimaryMemory &MMU::getMemoriaPrincipal()
 {
     return memoriaPrincipal;
+}
+
+
+bool MMU::modificarInstruccion(int procesoId, int direccionLogica, const std::string &nuevaInstruccion)
+{
+    // Traducir dirección lógica a física
+    int direccionFisica = traducirDireccion(direccionLogica, procesoId);
+    if (direccionFisica == -1)
+    {
+        std::cerr << "[ERROR] No se pudo traducir la dirección lógica.\n";
+        return false;
+    }
+    if (!memoriaPrincipal.actualizarInstruccion(direccionFisica, nuevaInstruccion))
+    {
+        std::cerr << "[ERROR] No se pudo actualizar la instrucción en la memoria principal.\n";
+        return false;
+    }
+    // Marcar la página como modificada
+    int paginaLogica = direccionLogica / 4;
+    Proceso *proceso = procesosActuales[procesoId];
+    proceso->ObtenerTablaDePaginas()->actualizarModificacion(paginaLogica, true);
+    return true;
 }

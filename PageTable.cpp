@@ -5,7 +5,7 @@ PageTable::PageTable(int numPaginas) : numPaginas(numPaginas)
     tabla.resize(numPaginas, {-1, -1, false, false, false, 0});
 }
 
-bool PageTable::agregarEntrada(int numeroPag, int marco, int indiceSecundario, bool valido)
+bool PageTable::agregarEntrada(int numeroPag, int marco, int indiceSecundario, bool valido, int instruccionesEnPagina)
 {
 
     if (numeroPag < 0 || numeroPag >= tabla.size())
@@ -13,7 +13,7 @@ bool PageTable::agregarEntrada(int numeroPag, int marco, int indiceSecundario, b
         return false;
     }
 
-    tabla[numeroPag] = {marco, indiceSecundario, valido, false, false};
+    tabla[numeroPag] = {marco, indiceSecundario, valido, false, false, 0, instruccionesEnPagina};
     return true;
 }
 
@@ -156,6 +156,16 @@ bool PageTable::estaModificado(int numeroPag) const
     return tabla[numeroPag].modificado;
 }
 
-void PageTable::actualizarFrame(int numeroPag, int marco){
+void PageTable::actualizarFrame(int numeroPag, int marco)
+{
     tabla[numeroPag].marco = marco;
 }
+
+int PageTable::obtenerInstruccionesEnPagina(int numeroPag) const
+{
+    if (numeroPag < 0 || numeroPag >= tabla.size())
+        return 0;
+    return tabla[numeroPag].instruccionesEnPagina;
+}
+
+

@@ -13,12 +13,12 @@ class Proceso;
 class MMU
 {
 private:
-    int frameLimit;                          // Límite de marcos por proceso
-    int totalFrames;                         // Número total de marcos en memoria principal
-    PrimaryMemory memoriaPrincipal;          // Memoria principal.
-    SecondaryMemory memoriaSecundaria;       // Almacenamiento secundario.
-    std::vector<Proceso *> procesosActuales; // Procesos en ejecución.
-    std::vector<std::pair<int, int>> processFrames; //mapea cuales frames estan ocupados por cuales procesos
+    int frameLimit;                                 // Límite de marcos por proceso
+    int totalFrames;                                // Número total de marcos en memoria principal
+    SecondaryMemory memoriaSecundaria;              // Almacenamiento secundario.
+    PrimaryMemory memoriaPrincipal;                 // Memoria principal.
+    std::vector<Proceso *> procesosActuales;        // Procesos en ejecución.
+    std::vector<std::pair<int, int>> processFrames; // mapea cuales frames estan ocupados por cuales procesos
 
 public:
     // Constructor
@@ -29,7 +29,8 @@ public:
     void asignarProceso(Proceso *proceso);
     void liberarProceso(int procesoId);
     int contarMarcosAsignados(int processId);
-    PrimaryMemory getMemoriaPrincipal() const;
+    bool modificarInstruccion(int procesoId, int direccionLogica, const std::string &nuevaInstruccion);
+    PrimaryMemory &getMemoriaPrincipal();
 };
 
 #endif // MMU_H

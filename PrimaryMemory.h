@@ -22,6 +22,7 @@ public:
     std::vector<std::string> obtenerFrame(int indice);                       // Devuelve el marco en el índice especificado.
     bool actualizarFrame(int indice, const std::vector<std::string> &datos); // Actualiza el contenido de un marco específico.
     std::string obtenerInstruccion(int direccionFisica);
+    bool actualizarInstruccion(int direccionFisica, const std::string &nuevaInstruccion); // actualizar instruccion especifica
     void imprimirEstado() const;
 };
 
