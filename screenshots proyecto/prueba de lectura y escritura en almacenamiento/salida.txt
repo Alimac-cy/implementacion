@@ -1,0 +1,151 @@
+
+//Se utiliza la implementacion de modificado de instrucciones en la memoria principal y el MMU
+//Se añadieron saltos de linea que no estaban en el main para que fuera más entendible
+
+cami@DESKTOP-2GVQS4K:~/Oper/implementacion$ ./programa
+
+[PROCESAMIENTO] 2 Procesos asignados, frame limit ajustado.
+
+[EJECUCIÓN] Acceso a direcciones lógicas del proceso 0:
+Dirección Física: 0
+Instrucción específica: P0_INSTRUCCION_0
+Dirección Física: 1
+Instrucción específica: P0_INSTRUCCION_1
+Dirección Física: 2
+Instrucción específica: P0_INSTRUCCION_2
+Dirección Física: 3
+Instrucción específica: P0_INSTRUCCION_3
+Dirección Física: 4
+Instrucción específica: P0_INSTRUCCION_4
+Dirección Física: 5
+Instrucción específica: P0_INSTRUCCION_5
+Dirección Física: 6
+Instrucción específica: P0_INSTRUCCION_6
+Dirección Física: 7
+Instrucción específica: P0_INSTRUCCION_7
+Dirección Física: 8
+Instrucción específica: P0_INSTRUCCION_8
+Dirección Física: 9
+Instrucción específica: P0_INSTRUCCION_9
+
+[ESTADO DE LA MEMORIA PRINCIPAL]
+Marco 0: P0_INSTRUCCION_0 P0_INSTRUCCION_1 P0_INSTRUCCION_2 P0_INSTRUCCION_3
+Marco 1: P0_INSTRUCCION_4 P0_INSTRUCCION_5 P0_INSTRUCCION_6 P0_INSTRUCCION_7
+Marco 2: P0_INSTRUCCION_8 P0_INSTRUCCION_9 [VACÍO] [VACÍO]
+Marco 3: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 4: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 5: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 6: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 7: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 8: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 9: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 10: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 11: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 12: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 13: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 14: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 15: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+
+[EJECUCIÓN] Acceso a direcciones lógicas del proceso 1:
+Dirección Física: 12
+Instrucción específica: P1_INSTRUCCION_0
+Dirección Física: 13
+Instrucción específica: P1_INSTRUCCION_1
+Dirección Física: 14
+Instrucción específica: P1_INSTRUCCION_2
+Dirección Física: 15
+Instrucción específica: P1_INSTRUCCION_3
+Dirección Física: 16
+Instrucción específica: P1_INSTRUCCION_4
+Dirección Física: 17
+Instrucción específica: P1_INSTRUCCION_5
+Dirección Física: 18
+Instrucción específica: P1_INSTRUCCION_6
+
+[ESTADO DE LA MEMORIA PRINCIPAL]
+Marco 0: P0_INSTRUCCION_0 P0_INSTRUCCION_1 P0_INSTRUCCION_2 P0_INSTRUCCION_3
+Marco 1: P0_INSTRUCCION_4 P0_INSTRUCCION_5 P0_INSTRUCCION_6 P0_INSTRUCCION_7
+Marco 2: P0_INSTRUCCION_8 P0_INSTRUCCION_9 [VACÍO] [VACÍO]
+Marco 3: P1_INSTRUCCION_0 P1_INSTRUCCION_1 P1_INSTRUCCION_2 P1_INSTRUCCION_3
+Marco 4: P1_INSTRUCCION_4 P1_INSTRUCCION_5 P1_INSTRUCCION_6 [VACÍO]
+Marco 5: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 6: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 7: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 8: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 9: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 10: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 11: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 12: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 13: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 14: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 15: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+
+Modificando instrucción en dirección lógica del proceso 0: 2
+Instrucción en dirección lógica 2 modificada.
+
+Modificando instrucción en dirección lógica del proceso 0: 5
+Instrucción en dirección lógica 5 modificada.
+
+Modificando instrucción en dirección lógica del proceso 1: 6
+Instrucción en dirección lógica 6 modificada.
+
+[ESTADO DE LA MEMORIA PRINCIPAL ANTES de liberar los procesos]
+[ESTADO DE LA MEMORIA PRINCIPAL]
+Marco 0: P0_INSTRUCCION_0 P0_INSTRUCCION_1 P0_INSTRUCCION_MOD_2 P0_INSTRUCCION_3
+Marco 1: P0_INSTRUCCION_4 P0_INSTRUCCION_MOD_5 P0_INSTRUCCION_6 P0_INSTRUCCION_7
+Marco 2: P0_INSTRUCCION_8 P0_INSTRUCCION_9 [VACÍO] [VACÍO]
+Marco 3: P1_INSTRUCCION_0 P1_INSTRUCCION_1 P1_INSTRUCCION_2 P1_INSTRUCCION_3
+Marco 4: P1_INSTRUCCION_4 P1_INSTRUCCION_5 P1_INSTRUCCION_MOD_6 [VACÍO]
+Marco 5: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 6: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 7: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 8: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 9: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 10: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 11: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 12: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 13: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 14: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 15: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+
+Liberar proceso 0:
+Liberar proceso 1:
+
+[ESTADO FINAL DE LA MEMORIA PRINCIPAL]
+[ESTADO DE LA MEMORIA PRINCIPAL]
+Marco 0: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 1: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 2: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 3: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 4: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 5: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 6: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 7: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 8: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 9: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 10: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 11: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 12: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 13: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 14: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+Marco 15: [VACÍO] [VACÍO] [VACÍO] [VACÍO]
+
+Contenido del archivo de almacenamiento secundario después de modificaciones:
+Línea 0: P0_INSTRUCCION_0
+Línea 1: P0_INSTRUCCION_1
+Línea 2: P0_INSTRUCCION_MOD_2
+Línea 3: P0_INSTRUCCION_3
+Línea 4: P0_INSTRUCCION_4
+Línea 5: P0_INSTRUCCION_MOD_5
+Línea 6: P0_INSTRUCCION_6
+Línea 7: P0_INSTRUCCION_7
+Línea 8: P0_INSTRUCCION_8
+Línea 9: P0_INSTRUCCION_9
+Línea 10: +
+Línea 11: P1_INSTRUCCION_0
+Línea 12: P1_INSTRUCCION_1
+Línea 13: P1_INSTRUCCION_2
+Línea 14: P1_INSTRUCCION_3
+Línea 15: P1_INSTRUCCION_4
+Línea 16: P1_INSTRUCCION_5
+Línea 17: P1_INSTRUCCION_MOD_6
